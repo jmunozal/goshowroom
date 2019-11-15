@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"strconv"
 	"time"
 )
 
 func main () {
 
 	url := flag.String("url", "", "url")
-	time := flag.Int("delay", 0, "time (in seconds) between calls (>1)")
+	t := flag.Int("delay", 0, "time (in seconds) between calls (>1)")
 	token := flag.String("token", "", "auth (Bearer) token")
 
 	flag.Parse()
@@ -20,7 +21,7 @@ func main () {
 		fmt.Println("url is mandatory")
 		os.Exit(1)
 	}
-	if *time == 0 || *time < 1 {
+	if *t == 0 || *t < 1 {
 		fmt.Println("time is mandatory and > 1")
 		os.Exit(1)
 	}
@@ -29,8 +30,12 @@ func main () {
 		os.Exit(1)
 	}
 
+	sleepTime := strconv.Itoa(*t) + "s"
+
 	for {
 		fmt.Println("call to ", *url, doCall(url, token))
+		t, _ := time.ParseDuration(sleepTime)
+		time.Sleep(t)
 	}
 
 
