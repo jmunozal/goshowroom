@@ -1,15 +1,19 @@
 FROM golang:latest AS build
 
-RUN git clone https://github.com/jmunozal/goshowroom.git /temporal
+#RUN git clone https://github.com/jmunozal/goshowroom.git /temporal
 
-WORKDIR /temporal/helloworld-server
+RUN go get github.com/jmunozal/goshowroom/helloworld-server
 
-RUN go build -o /temporal/helloworld-server/server.go
+WORKDIR /go/src/github.com/jmunozal/goshowroom/helloworld-server
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o server
 
 # STAGE 2: Deployment
 FROM alpine
 
-USER nobody:nobody
-COPY --from=build /temporal/helloworld-server/server.go /server/server
+EXPOSE 8080
 
-CMD [ "/server/server" ]
+USER nobody:nobody
+COPY --from=build /go/src/github.com/jmunozal/goshowroom/helloworld-server/server /server
+
+CMD [ "/server" ]
